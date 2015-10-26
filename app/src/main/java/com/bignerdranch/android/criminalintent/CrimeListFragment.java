@@ -21,6 +21,8 @@ public class CrimeListFragment extends Fragment{
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
 
+    private static final int REQUEST_CRIME = 1;
+
     private class CrimeHold extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mTitleTextView;
         private TextView mDateTextView;
@@ -48,11 +50,8 @@ public class CrimeListFragment extends Fragment{
 
         @Override
         public void onClick(View v){
-//            Toast.makeText(getActivity(),
-//                    mCrime.getmTitle() + " Clicked!", Toast.LENGTH_SHORT)
-//                    .show();
             Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getmId());
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_CRIME);
         }
     }
 
@@ -97,12 +96,29 @@ public class CrimeListFragment extends Fragment{
         return view;
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        updateUI();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == REQUEST_CRIME){
+            //handle result
+        }
+    }
+
     private void updateUI(){
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
-        mAdapter = new CrimeAdapter(crimes);
+        if(mAdapter == null){
+            mAdapter = new CrimeAdapter(crimes);
+            mCrimeRecyclerView.setAdapter(mAdapter);
+        } else {
+            mAdapter.notifyDataSetChanged();
+        }
 
-        mCrimeRecyclerView.setAdapter(mAdapter);
     }
 }
