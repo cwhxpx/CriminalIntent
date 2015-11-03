@@ -14,6 +14,7 @@ public class CrimeBaseHelper extends SQLiteOpenHelper{
     private static final String DATABASE_NAME = "crimeBase.db";
 
     public CrimeBaseHelper(Context context) {
+
         super(context, DATABASE_NAME, null, VERSION);
     }
 
@@ -24,7 +25,8 @@ public class CrimeBaseHelper extends SQLiteOpenHelper{
                    CrimeTable.Cols.UUID + ", " +
                    CrimeTable.Cols.TITLE + ", " +
                    CrimeTable.Cols.DATE + ", " +
-                   CrimeTable.Cols.SOLVED +
+                   CrimeTable.Cols.SOLVED + ", " +
+                   CrimeTable.Cols.SUSPECT +
                    ")"
         );
     }
