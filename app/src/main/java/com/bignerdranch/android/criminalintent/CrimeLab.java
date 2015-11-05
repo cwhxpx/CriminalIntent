@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
+import android.util.Log;
 
 import com.bignerdranch.android.criminalintent.database.CrimeBaseHelper;
 import com.bignerdranch.android.criminalintent.database.CrimeCursorWrapper;
@@ -20,6 +21,7 @@ import java.util.UUID;
  * Created by cwh on 20/10/2015.
  */
 public class CrimeLab {
+    private static final String TAG = "CrimeLab";
     private static CrimeLab sCrimeLab;
     private Context mContext;
     private SQLiteDatabase mDatabase;
@@ -94,9 +96,12 @@ public class CrimeLab {
         String uuidString = crime.getmId().toString();
         ContentValues values = getContentValues(crime);
 
-        mDatabase.update(CrimeTable.NAME, values,
+        Log.i(TAG, "updateCrime()--crime's date = [" + crime.getmDate().toString() + "]");
+
+        int rowUpdated = mDatabase.update(CrimeTable.NAME, values,
                 CrimeTable.Cols.UUID + " = ?",
                 new  String[] {uuidString});
+        Log.i(TAG, "updateCrime()--rowUpdated = " + rowUpdated);
     }
 
     private static ContentValues getContentValues(Crime crime){

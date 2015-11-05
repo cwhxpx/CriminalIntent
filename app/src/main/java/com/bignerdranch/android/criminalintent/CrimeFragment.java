@@ -51,6 +51,14 @@ public class CrimeFragment extends Fragment{
     private Button mSuspectButton;
     private ImageButton mPhotoButton;
     private ImageView mPhotoView;
+    private Callbacks mCallbacks;
+
+    /**
+     * Required interface for hosting activity
+     */
+    public interface Callbacks {
+        void onCrimeUpdated(Crime crime);
+    }
 
     public static CrimeFragment newInstance(UUID crimeId){
         Bundle args = new Bundle();
@@ -61,6 +69,13 @@ public class CrimeFragment extends Fragment{
 
         return fragment;
     }
+
+    @Override
+    public void onAttach(Activity activity){
+        super.onAttach(activity);
+        mCallbacks = (Callbacks)activity;
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -80,6 +95,12 @@ public class CrimeFragment extends Fragment{
     }
 
     @Override
+    public void onDetach(){
+        super.onDetach();
+        mCallbacks = null;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         View v = inflater.inflate(R.layout.fragment_crime, container, false);
@@ -96,6 +117,7 @@ public class CrimeFragment extends Fragment{
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mCrime.setmTitle(s.toString());
+                updateCrime();
             }
 
             @Override
@@ -118,6 +140,24 @@ public class CrimeFragment extends Fragment{
             }
 
         });
+        //extract newest date from the date button and update crime's date
+        mDateButton.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                //This sapce intentionally left blank
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //This sapce intentionally left blank
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                //This sapce intentionally left blank
+                //mCrime.setmDate(new Date()s.toString());
+            }
+        });
 
         mSolvedCheckBox = (CheckBox)v.findViewById(R.id.crime_solved);
         mSolvedCheckBox.setChecked(mCrime.ismSolved());
@@ -126,6 +166,7 @@ public class CrimeFragment extends Fragment{
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //Set the crime's solved property
                 mCrime.setmSolved(isChecked);
+                updateCrime();
             }
         });
 
@@ -198,6 +239,7 @@ public class CrimeFragment extends Fragment{
             Date date = (Date)data
                     .getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setmDate(date);
+            updateCrime();
             updateDate();
         }else if (requestCode == REQUEST_CONTACT && data != null){
             Uri contactUri = data.getData();
@@ -226,13 +268,20 @@ public class CrimeFragment extends Fragment{
                 c.moveToFirst();
                 String suspect = c.getString(0);
                 mCrime.setSuspect(suspect);
+                updateCrime();
                 mSuspectButton.setText(suspect);
             }finally {
                 c.close();
             }
         }else if (requestCode == REQUEST_PHOTO){
+            updateCrime();
             updatePhotoView();
         }
+    }
+
+    private void updateCrime(){
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
+        mCallbacks.onCrimeUpdated(mCrime);
     }
 
     private void updateDate() {
